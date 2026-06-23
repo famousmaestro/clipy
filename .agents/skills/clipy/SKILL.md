@@ -220,7 +220,33 @@ Detect source aspect with `ffprobe -v error -select_streams v:0 -show_entries st
 
 **CRITICAL RULE FOR REFRAMING**: You must ensure the speaker's face is positioned exactly in the center "middle" of the camera in the vertical output. The face should be the strict focal point and perfectly centered horizontally to avoid awkward off-center shots.
 
-#### Option A — Center-crop (single speaker or product-centered)
+**SMOOTH TRANSITION RULES**: When cutting to the most viral moment:
+1. **Speech Boundary Detection**: Never cut mid-word. Always verify the speaker has finished their word before cutting.
+2. **Buffer Zones**: Add 1-3 seconds of breathing room BEFORE and AFTER the viral clip:
+   - Find the natural pause or end of sentence in the transcript
+   - Extend the cut to include complete thoughts
+   - Check the line right after your end point: if it opens with continuation words ("and," "but," "because," "which means," "so that's why"), push the end point further out
+3. **Hard Cuts**: Use the build_pan.py script with buffered timing to ensure smooth transitions
+
+### Reframing Options for 9:16 Output
+
+**Option A — Center-crop (single speaker or product-centered)**
+Single speaker or product-focused content: Crop the center of the frame and scale to 1080×1920.
+
+**Option B — Pan-between-faces (two speakers, podcast/interview)**
+For multi-speaker content, use motion energy detection to track who is speaking:
+- **Speaker-Focused Pan**: The active speaker's face is centered in the frame
+- **Hard cuts** between speakers with 1-3s buffer zones
+- Face position: `face_center_x - 304` for left speaker, `face_center_x - 304` for right speaker
+
+**Option C — Split-screen (both faces always visible)**
+For podcasts where both speakers should remain visible:
+- Two stacked tiles, 1080×960 each (speaker on top during their turn)
+- Overlay enables speaker switching: `between(t,speaker_start,speaker_end)` expressions
+- Tile crops target ~720×640 around each face
+
+**Option D — Blurred Background**
+16:9 video scaled inside 9:16 blurred background with optional overlay positioning.
 
 ```bash
 ffmpeg -y -i clip.mp4 -filter_complex \
